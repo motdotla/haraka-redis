@@ -30,6 +30,18 @@ Comment out all the plugins in /etc/haraka/config/plugins.
 sudo vim /etc/haraka/config/plugins
 ```
 
+Change `config/me` to list your domain.
+
+```bash
+sudo vim /etc/haraka/config/me
+```
+
+Add your domain to that file.
+
+```
+yourdomain.com
+```
+
 Start the haraka service
 
 ```bash
@@ -58,7 +70,8 @@ Finally, setup the js plugin.
 cd /etc/haraka/plugins
 sudo npm install -g redis
 sudo npm install -g microtime
-sudo git clone https://github.com/scottmotte/haraka-redis.git
+sudo npm install -g redis-wstream
+sudo wget https://raw.github.com/scottmotte/haraka-redis/master/data.redis.js
 cd ..
 sudo haraka -c .
 ```

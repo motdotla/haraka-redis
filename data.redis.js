@@ -1,21 +1,19 @@
 // data.redis.js
-var microtime = require('microtime');
-var redis     = require("redis");
-var client    = redis.createClient();
+var fs            = require('fs');
+var microtime     = require('microtime');
+var redis         = require('redis');
+var redisWStream  = require('redis-wstream');
 
-client.on("error", function (err) {
-  console.log("Error " + err);
-});
+var client        = redis.createClient();
 
-exports.hook_queue = function (next, connection) {
-  var transaction     = connection.transaction;
-  var receivedDate  = transaction.header.headers.date;
-  var subjectLine   = transaction.header.headers.subject;
-  var message       = transaction.data_lines;
-  var timestamp     = microtime.now();
-  var redisKey        = recipient + "|" + timestamp;
-
-  client.set(redisKey, message, redis.print);
-  // passes control over to the next plugin within Haraka.                                                                                                       
-  next();
+exports.register = function () {
+  this.register_hook('queue', 'data_redis');
 }
+
+exports.data_redis = function (next, connection) {
+  var transaction   = connection.transaction;
+  var timestamp     = microtime.now();
+  var redisKey      = transaction.uuid + "|" + timestamp;
+
+  transaction.message_stream.pipe(redisWStream(client, redisKey), { line_endings: '\n' });
+};
