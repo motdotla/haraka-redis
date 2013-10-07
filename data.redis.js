@@ -7,6 +7,7 @@ var redisWStream  = require('redis-wstream');
 var client        = redis.createClient();
 
 exports.register = function () {
+  this.register_hook('rcpt', 'solve_550_error');
   this.register_hook('queue', 'data_redis');
 }
 
@@ -15,5 +16,13 @@ exports.data_redis = function (next, connection) {
   var timestamp     = microtime.now();
   var redisKey      = transaction.uuid + "|" + timestamp;
 
-  transaction.message_stream.pipe(redisWStream(client, redisKey), { line_endings: '\n' });
+  transaction.message_stream.pipe(redisWStream(client, redisKey));
 };
+
+/**
+ ** Let's pretend we can deliver mail to these recipients.
+ ** Solves: "550 I cannot deliver mail for {user@domain}"
+ **/
+exports.solve_550_error = function(next, connection) {
+  return next(OK);
+}
