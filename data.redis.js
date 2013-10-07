@@ -14,7 +14,7 @@ exports.register = function () {
 exports.data_redis = function (next, connection) {
   var transaction   = connection.transaction;
   var timestamp     = microtime.now();
-  var redisKey      = transaction.uuid + "|" + timestamp;
+  var redisKey      = timestamp + "|" + transaction.uuid;
 
   transaction.message_stream.pipe(redisWStream(client, redisKey));
 };
